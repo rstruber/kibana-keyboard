@@ -26,7 +26,7 @@
                         // only apply to top page
                         if ( document != window.top.document ) return;
 
-                        // handle command-g & esc
+                        // handle space bar
                         window.addEventListener('keydown', function(e) {
                                 ext.handleSpaceDown(e);
                         });
