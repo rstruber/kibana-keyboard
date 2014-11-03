@@ -1,0 +1,12 @@
+{
+	"name": "Kibana Pause",
+	"version": "1.0",
+	"manifest_version": 2,
+	"description": "Keyboard shortcut to turn off Kibana auto-refresh",
+	"content_scripts": [
+		{
+			"matches": ["http://weblog0.copy.sfj.cudaops.com/*"],
+			"js": ["src/inject.js"]
+		}
+	]
+}
