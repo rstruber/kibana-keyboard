@@ -159,7 +159,7 @@
 			}
 
 			// querySelectorAll returns a NodeList which apparantly sucks so convert it to an array
-			kbkc.kiosk.e = document.querySelectorAll("div.navbar-static-top, nil.ng-scope, div.kibana-row > div > div:nth-child(1) > div.row-open, .container-fluid.main.ng-scope > div > div > div.row-fluid > div > span");
+			kbkc.kiosk.e = document.querySelectorAll("div.navbar-static-top, nil.ng-scope, div.kibana-row > div > div:nth-child(1) > div.row-open, .container-fluid.main.ng-scope > div > div > div.row-fluid > div > span, div.panel-extra-container > span.row-button.extra");
 			kbkc.kiosk.e = Array.prototype.slice.call(kbkc.kiosk.e);
 
 			kbkc.initialized = true;
