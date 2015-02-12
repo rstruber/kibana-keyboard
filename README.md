@@ -17,4 +17,4 @@ To Install
 To Do
 -----
 
-* Funky behavior when clicking on the menu
+* ?
