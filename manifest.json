@@ -1,11 +1,11 @@
 {
-	"name": "Kibana Pause",
-	"version": "1.0",
+	"name": "Kibana Keyboard Control",
+	"version": "1.1",
 	"manifest_version": 2,
 	"description": "Keyboard shortcut to turn off Kibana auto-refresh",
 	"content_scripts": [
 		{
-			"matches": ["http://weblog0.copy.sfj.cudaops.com/*"],
+			"matches": ["http://logs.copy.com/*"],
 			"js": ["src/inject.js"]
 		}
 	]
