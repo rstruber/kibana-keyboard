@@ -15,8 +15,3 @@ To Install
 * Open chrome://extensions 
 * Drag and drop the crx file onto the extensions page 
 * Accept permissions
-
-To Do
------
-
-* ?
