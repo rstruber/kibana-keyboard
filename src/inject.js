@@ -2,6 +2,137 @@
 (function() {
 	var kbkc = {
 		initialized: false,
+		sleeping: false,
+
+		// for things that do not depend on ui elements to be loaded
+		init: function() {
+			// only apply to top page
+			if ( document != window.top.document ) return;
+
+                        // listen for keydown
+			window.addEventListener('keydown', function(e) {
+				var activeEl = document.activeElement;
+				if ( activeEl && ((activeEl.tagName.toLowerCase() == 'input' || activeEl.type == 'text' || activeEl.tagName.toLowerCase() == 'textarea')) )
+				{
+					return;
+				}
+
+				// Do nothing when we are sleeping
+				if ( kbkc.sleeping )
+				{
+					return;
+				}
+				
+				// Intercept meta keys shift - ctrl - alt - cmd/option (mac os)
+				if (
+					e.keyCode == 224 || // cmd - firefox
+					e.keyCode == 17 || // cmd - opera
+					e.keyCode == 91 || // cmd - webkit (left)
+					e.keyCode == 93 || // cmd - webkit (right)
+					e.keyCode == 65 || // shift
+					e.keyCode == 17 || // ctrl
+					e.keyCode == 18 // alt (option on mac os)
+				)
+				{
+					kbkc.sleeping = true;
+					return;
+				}
+
+				kbkc.initState();
+
+				// Handles the space bar
+				if ( e.keyCode == 32 )
+				{
+					e.preventDefault();
+					kbkc.handleSpacebar(e);
+				}
+
+				// Handles the 1-0 keys along top row of keyboard
+				if ( e.keyCode >= 48 && e.keyCode <= 57 )
+				{
+					e.preventDefault();
+					kbkc.handleInteger(e);
+				}
+
+				// Handle the "h" or "k" key
+				if ( e.keyCode == 72 || e.keyCode == 75 )
+				{
+					e.preventDefault();
+					kbkc.handleKioskMode();
+				}
+
+				if ( e.keyCode == 82 )
+				{
+					e.preventDefault();
+					kbkc.handleRefresh();
+				}
+			});
+
+			// listen for keyup
+			window.addEventListener('keyup', function(e) {
+				// Intercept meta keys shift - ctrl - alt - cmd/option (mac os)
+				if (
+					e.keyCode == 224 || // cmd - firefox
+					e.keyCode == 17 || // cmd - opera
+					e.keyCode == 91 || // cmd - webkit (left)
+					e.keyCode == 93 || // cmd - webkit (right)
+					e.keyCode == 65 || // shift
+					e.keyCode == 17 || // ctrl
+					e.keyCode == 18 // alt (option on mac os)
+				)
+				{
+					kbkc.sleeping = false;
+					return;
+				}
+			});
+		},
+
+		// kibana loads most of the ui through angular so can't use regular dom events to init off ui elements
+		initState: function() {
+			// We only want to run this once - this is a little jank but oh well...
+			if (kbkc.initialized)
+			{
+				return;
+			}
+
+			var refreshText = document.querySelector("li.dropdown > a > span.text-warning.ng-binding");
+
+			// if there is a refresh interval already set...
+			if ( refreshText.style.display != 'none' )
+			{
+				// Gets the current setting from text in Kibana time interval
+				var intervalCurrent = refreshText.innerText;
+				intervalCurrent = intervalCurrent.substring( intervalCurrent.lastIndexOf(' ')+1 );
+				// Gets the possbile settings - because this is dynamic
+				var possibleIntervals = document.querySelectorAll("kibana-simple-panel > div > form > ul > li.dropdown > ul > li.dropdown-submenu > ul > li");
+				possibleIntervals = Array.prototype.slice.call(possibleIntervals);
+
+				possibleIntervals.forEach(function(e, i) {
+					var intervalOption = e.firstChild.innerText;
+					intervalOption = intervalOption.substring( intervalOption.lastIndexOf(' ')+1 );
+
+					if (intervalOption == intervalCurrent)
+					{
+						kbkc.refresh.interval = i+1;
+					}
+				});
+
+				kbkc.refresh.active = true;
+			}
+			else
+			{
+				// Set the default interval to the 2nd position of the dropdown's submenu
+				kbkc.refresh.interval = 2;
+				kbkc.refresh.active = false;
+			}
+
+			// querySelectorAll returns a NodeList which apparantly sucks so convert it to an array
+			kbkc.kiosk.e = document.querySelectorAll("div.navbar-static-top, nil.ng-scope, div.kibana-row > div > div:nth-child(1) > div.row-open, .container-fluid.main.ng-scope > div > div > div.row-fluid > div > span, div.panel-extra-container > span.row-button.extra");
+			kbkc.kiosk.e = Array.prototype.slice.call(kbkc.kiosk.e);
+
+			// So we don't do this again
+			kbkc.initialized = true;
+		},
 
 		refresh: {
 			active: null,
@@ -83,86 +214,8 @@
 			kbkc.kiosk.toggle();
 		},
 
-		// for things that do not depend on ui elements to be loaded
-		init: function() {
-			// only apply to top page
-			if ( document != window.top.document ) return;
-
-                        // handle space bar
-			window.addEventListener('keydown', function(e) {
-				var activeEl = document.activeElement;
-				if ( activeEl && ((activeEl.tagName.toLowerCase() == 'input' || activeEl.type == 'text' || activeEl.tagName.toLowerCase() == 'textarea')) )
-				{
-					return;
-				}
-
-				kbkc.initState();
-
-				// Handles the space bar
-				if ( e.keyCode == 32 )
-				{
-					e.preventDefault();
-					kbkc.handleSpacebar(e);
-				}
-
-				// Handles the 1-0 keys along top row of keyboard
-				if ( e.keyCode >= 48 && e.keyCode <= 57 )
-				{
-					e.preventDefault();
-					kbkc.handleInteger(e);
-				}
-
-				// Handle the "h" or "k" key
-				if ( e.keyCode == 72 || e.keyCode == 75)
-				{
-					e.preventDefault();
-					kbkc.handleKioskMode();
-				}
-			});
-                },
-		// kibana loads most of the ui through angular so can't use regular dom events to init off ui elements
-		initState: function() {
-			if (kbkc.initialized)
-			{
-				return;
-			}
-
-			var refreshText = document.querySelector("li.dropdown > a > span.text-warning.ng-binding");
-
-			// if there is a refresh interval already set...
-			if ( refreshText.style.display != 'none' )
-			{
-				// Gets the current setting from text in Kibana time interval
-				var intervalCurrent = refreshText.innerText;
-				intervalCurrent = intervalCurrent.substring( intervalCurrent.lastIndexOf(' ')+1 );
-				// Gets the possbile settings - because this is dynamic
-				var possibleIntervals = document.querySelectorAll("kibana-simple-panel > div > form > ul > li.dropdown > ul > li.dropdown-submenu > ul > li");
-				possibleIntervals = Array.prototype.slice.call(possibleIntervals);
-
-				possibleIntervals.forEach(function(e, i) {
-					var intervalOption = e.firstChild.innerText;
-					intervalOption = intervalOption.substring( intervalOption.lastIndexOf(' ')+1 );
-
-					if (intervalOption == intervalCurrent)
-					{
-						kbkc.refresh.interval = i+1;
-					}
-				});
-
-				kbkc.refresh.active = true;
-			}
-			else
-			{
-				// Set the default interval to the 2nd position of the dropdown's submenu
-				kbkc.refresh.interval = 2;
-				kbkc.refresh.active = false;
-			}
-
-			// querySelectorAll returns a NodeList which apparantly sucks so convert it to an array
-			kbkc.kiosk.e = document.querySelectorAll("div.navbar-static-top, nil.ng-scope, div.kibana-row > div > div:nth-child(1) > div.row-open, .container-fluid.main.ng-scope > div > div > div.row-fluid > div > span, div.panel-extra-container > span.row-button.extra");
-			kbkc.kiosk.e = Array.prototype.slice.call(kbkc.kiosk.e);
-
-			kbkc.initialized = true;
+		handleRefresh: function(e) {
+			document.querySelector("body > div.navbar.navbar-static-top > div > div > ul > li:nth-child(2) > kibana-simple-panel > div > form > ul > li:nth-child(2) > a").click();
 		}
 	};
 

@@ -1,10 +1,12 @@
 Compatible with kibana3.
 
-Use the space bar to toggle between auto-refresh off and last interval.
+Use "spacebar" to toggle between auto-refresh off and last interval.
 
-Use 1-0 to select different intervals.
+Use "1-0" to select different intervals.
 
-Use h or k to toggle kiosk mode.
+Use "h" or "k" to toggle kiosk mode.
+
+Use "r" to refresh current search
 
 To Install
 ==========
