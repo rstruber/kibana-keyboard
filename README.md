@@ -8,8 +8,7 @@ Use "h" or "k" to toggle kiosk mode.
 
 Use "r" to refresh current search
 
-To Install
-==========
+###To Install
 
 * Download kibana-keyboard.crx
 * Open chrome://extensions 
